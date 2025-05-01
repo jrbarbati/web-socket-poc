@@ -1,6 +1,6 @@
-package com.personal.config;
+package com.personal.batch.hatcher.config;
 
-import com.personal.interceptor.WebSocketInterceptor;
+import com.personal.batch.hatcher.interceptor.WebSocketInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
