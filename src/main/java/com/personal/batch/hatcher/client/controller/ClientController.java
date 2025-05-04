@@ -22,6 +22,13 @@ public class ClientController
     @GetMapping(value = "/clients", produces = "application/json")
     public ResponseEntity<Object> fetchClients()
     {
-        return ResponseEntity.notFound().build();
+        try
+        {
+            return ResponseEntity.ok(clientService.findAll());
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.internalServerError().body("{\"message\": \"%s\"}".formatted(e.getMessage()));
+        }
     }
 }
