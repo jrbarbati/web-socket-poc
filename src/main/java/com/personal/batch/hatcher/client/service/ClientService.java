@@ -34,27 +34,27 @@ public class ClientService
         return save(client);
     }
 
-    public void updateLastHeartbeatTimestampToCurrentTime(Client client)
+    public Client updateLastHeartbeatTimestampToCurrentTime(Client client)
     {
-        updateLastHeartbeatTimestamp(client, currentTime());
+        return updateLastHeartbeatTimestamp(client, currentTime());
     }
 
-    public void updateLastHeartbeatTimestamp(Client client, Timestamp lastHeartbeatTimestamp)
+    public Client updateLastHeartbeatTimestamp(Client client, Timestamp lastHeartbeatTimestamp)
     {
         client.setLastHeartbeatTimestamp(lastHeartbeatTimestamp);
-        update(client);
+        return update(client);
     }
 
-    public void activate(Client client)
+    public Client activate(Client client)
     {
         client.setActive(true);
-        update(client);
+        return update(client);
     }
 
-    public void inactivate(Client client)
+    public Client inactivate(Client client)
     {
         client.setActive(false);
-        update(client);
+        return update(client);
     }
 
     protected Client save(Client client)
