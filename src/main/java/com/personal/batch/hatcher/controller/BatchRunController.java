@@ -26,10 +26,6 @@ public class BatchRunController
     @SendTo("/topic/batch-run")
     public BatchRunResponse batchRun(BatchRunRequest request)
     {
-        BatchRunResponse response = batchRunService.process(request);
-
-        log.info("Sending Response: {} {} {} -> {}", request.getInstanceId(), request.getName(), request.getOrgId(), response.shouldRun());
-
-        return response;
+        return batchRunService.process(request);
     }
 }

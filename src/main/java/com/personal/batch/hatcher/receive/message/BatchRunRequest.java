@@ -1,12 +1,14 @@
 package com.personal.batch.hatcher.receive.message;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.UUID;
 
 public class BatchRunRequest extends ReceivableMessage
 {
     private UUID instanceId;
     private String name;
-    private int orgId;
+    private Integer orgId;
 
     public UUID getInstanceId()
     {
@@ -28,14 +30,27 @@ public class BatchRunRequest extends ReceivableMessage
         this.name = name;
     }
 
-    public int getOrgId()
+    public Integer getOrgId()
     {
         return orgId;
     }
 
-    public void setOrgId(int orgId)
+    public void setOrgId(Integer orgId)
     {
         this.orgId = orgId;
+    }
+
+    @Override
+    public String toString()
+    {
+        try
+        {
+            return new ObjectMapper().writeValueAsString(this);
+        }
+        catch (Exception e)
+        {
+            return "Caught %s: %s".formatted(e.getClass().getSimpleName(), e.getMessage());
+        }
     }
 
     public static Builder builder()
@@ -59,7 +74,7 @@ public class BatchRunRequest extends ReceivableMessage
             return this;
         }
 
-        public Builder orgId(int orgId)
+        public Builder orgId(Integer orgId)
         {
             batchRunRequest.setOrgId(orgId);
             return this;

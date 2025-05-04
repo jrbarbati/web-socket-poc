@@ -1,13 +1,18 @@
 package com.personal.batch.hatcher.publish.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.UUID;
 
 public class BatchRunResponse extends PublishableMessage
 {
     private UUID instanceId;
     private String name;
-    private int orgId;
-    private boolean shouldRun;
+    private Integer orgId;
+
+    @JsonProperty("shouldRun")
+    private Boolean shouldRun;
 
     public UUID getInstanceId()
     {
@@ -29,24 +34,39 @@ public class BatchRunResponse extends PublishableMessage
         this.name = name;
     }
 
-    public int getOrgId()
+    public Integer getOrgId()
     {
         return orgId;
     }
 
-    public void setOrgId(int orgId)
+    public void setOrgId(Integer orgId)
     {
         this.orgId = orgId;
     }
 
-    public boolean shouldRun()
+    @JsonProperty("shouldRun")
+    public Boolean shouldRun()
     {
         return shouldRun;
     }
 
-    public void setShouldRun(boolean shouldRun)
+    @JsonProperty("shouldRun")
+    public void setShouldRun(Boolean shouldRun)
     {
         this.shouldRun = shouldRun;
+    }
+
+    @Override
+    public String toString()
+    {
+        try
+        {
+            return new ObjectMapper().writeValueAsString(this);
+        }
+        catch (Exception e)
+        {
+            return "Caught %s: %s".formatted(e.getClass().getSimpleName(), e.getMessage());
+        }
     }
 
     public static Builder builder()
