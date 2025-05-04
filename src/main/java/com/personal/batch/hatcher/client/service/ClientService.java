@@ -41,7 +41,20 @@ public class ClientService
 
     public void updateLastHeartbeatTimestamp(Client client, Timestamp lastHeartbeatTimestamp)
     {
-        clientRepository.updateLastHeartbeatTimestamp(client.getId(), lastHeartbeatTimestamp);
+        client.setLastHeartbeatTimestamp(lastHeartbeatTimestamp);
+        update(client);
+    }
+
+    public void activate(Client client)
+    {
+        client.setActive(true);
+        update(client);
+    }
+
+    public void inactivate(Client client)
+    {
+        client.setActive(false);
+        update(client);
     }
 
     protected Client save(Client client)
