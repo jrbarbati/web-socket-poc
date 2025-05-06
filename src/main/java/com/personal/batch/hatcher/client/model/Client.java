@@ -14,13 +14,10 @@ public class Client
 {
     @Id
     private UUID id;
-    private String name;
 
     @Column(updatable = false)
     private Timestamp createdAt;
 
-    private Timestamp updatedAt;
-    private Boolean active;
     private Timestamp lastHeartbeatTimestamp;
 
     @OneToMany(mappedBy = "client")
@@ -29,15 +26,7 @@ public class Client
     @PrePersist
     public void onCreate()
     {
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        this.createdAt = currentTime;
-        this.updatedAt = currentTime;
-    }
-
-    @PreUpdate
-    public void onUpdate()
-    {
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
+        this.createdAt = new Timestamp(System.currentTimeMillis());;
     }
 
     public UUID getId()
@@ -50,16 +39,6 @@ public class Client
         this.id = id;
     }
 
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
     public Timestamp getCreatedAt()
     {
         return createdAt;
@@ -68,29 +47,6 @@ public class Client
     public void setCreatedAt(Timestamp createdAt)
     {
         this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt()
-    {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt)
-    {
-        this.updatedAt = updatedAt;
-    }
-
-    public Boolean getActive()
-    {
-        if (active == null)
-            return false;
-
-        return active;
-    }
-
-    public void setActive(Boolean active)
-    {
-        this.active = active;
     }
 
     public Timestamp getLastHeartbeatTimestamp()

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ClientService
@@ -24,40 +26,22 @@ public class ClientService
         return clientRepository.findAll();
     }
 
-    public Client update(Client client)
+    public Optional<Client> findById(UUID clientId)
     {
-        return save(client);
+        return clientRepository.findById(clientId);
     }
 
-    public Client create(Client client)
+    public void updateLastHeartbeatTimestampToCurrentTime(UUID clientId)
     {
-        return save(client);
+        updateLastHeartbeatTimestamp(clientId, currentTime());
     }
 
-    public Client updateLastHeartbeatTimestampToCurrentTime(Client client)
+    public void updateLastHeartbeatTimestamp(UUID clientId, Timestamp lastHeartbeatTimestamp)
     {
-        return updateLastHeartbeatTimestamp(client, currentTime());
+        clientRepository.updateLastHeartbeatTimestamp(clientId, lastHeartbeatTimestamp);
     }
 
-    public Client updateLastHeartbeatTimestamp(Client client, Timestamp lastHeartbeatTimestamp)
-    {
-        client.setLastHeartbeatTimestamp(lastHeartbeatTimestamp);
-        return update(client);
-    }
-
-    public Client activate(Client client)
-    {
-        client.setActive(true);
-        return update(client);
-    }
-
-    public Client inactivate(Client client)
-    {
-        client.setActive(false);
-        return update(client);
-    }
-
-    protected Client save(Client client)
+    public Client save(Client client)
     {
         return clientRepository.save(client);
     }
