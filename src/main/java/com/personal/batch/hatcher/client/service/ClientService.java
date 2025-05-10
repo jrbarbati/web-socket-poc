@@ -26,6 +26,11 @@ public class ClientService
         return clientRepository.findAll();
     }
 
+    public Optional<Client> findById(Long id)
+    {
+        return clientRepository.findById(id);
+    }
+
     public Optional<Client> findByInstanceId(UUID instanceId)
     {
         return clientRepository.findByInstanceId(instanceId);

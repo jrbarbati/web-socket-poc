@@ -1,5 +1,9 @@
 package com.personal.batch.hatcher.job.service;
 
+import com.personal.batch.hatcher.client.model.Client;
+import com.personal.batch.hatcher.client.repository.ClientRepository;
+import com.personal.batch.hatcher.client.service.ClientService;
+import com.personal.batch.hatcher.job.exception.JobServiceException;
 import com.personal.batch.hatcher.job.model.Job;
 import com.personal.batch.hatcher.job.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class JobService
@@ -20,7 +23,7 @@ public class JobService
         this.jobRepository = jobRepository;
     }
 
-    public List<Job> findByClientId(UUID clientId)
+    public List<Job> findByClientId(Long clientId)
     {
         return jobRepository.findByClientId(clientId);
     }

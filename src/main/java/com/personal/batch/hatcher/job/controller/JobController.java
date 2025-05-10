@@ -23,7 +23,7 @@ public class JobController
     }
 
     @GetMapping(path = "/jobs", produces = "application/json")
-    public ResponseEntity<Object> fetchJobs(@PathVariable UUID clientId)
+    public ResponseEntity<Object> fetchJobs(@PathVariable Long clientId)
     {
         try
         {

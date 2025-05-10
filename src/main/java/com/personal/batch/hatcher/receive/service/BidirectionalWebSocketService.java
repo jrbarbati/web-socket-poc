@@ -18,5 +18,5 @@ public abstract class BidirectionalWebSocketService<T extends ReceivableMessage,
         return messagingTemplate;
     }
 
-    public abstract U process(T message);
+    public abstract U process(T message) throws Exception;
 }

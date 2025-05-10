@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component
-public interface ClientRepository extends JpaRepository<Client, UUID>
+public interface ClientRepository extends JpaRepository<Client, Long>
 {
     Optional<Client> findByInstanceId(UUID instanceId);
 }

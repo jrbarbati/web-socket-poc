@@ -1,5 +1,7 @@
 package com.personal.batch.hatcher.receive.service;
 
+import com.personal.batch.hatcher.client.model.Client;
+import com.personal.batch.hatcher.client.service.ClientService;
 import com.personal.batch.hatcher.job.model.Job;
 import com.personal.batch.hatcher.job.model.JobStatus;
 import com.personal.batch.hatcher.job.service.JobService;
@@ -23,24 +25,59 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
     private static final Long THREE_MINS_MILLIS = 180000L;
 
     private final HeartbeatService heartbeatService;
+    private final ClientService clientService;
     private final JobService jobService;
 
     @Autowired
-    public BatchRunService(SimpMessagingTemplate simpMessagingTemplate, HeartbeatService heartbeatService, JobService jobService)
+    public BatchRunService(
+            SimpMessagingTemplate simpMessagingTemplate,
+            HeartbeatService heartbeatService,
+            ClientService clientService,
+            JobService jobService
+    )
     {
         super(simpMessagingTemplate);
         this.heartbeatService = heartbeatService;
+        this.clientService = clientService;
         this.jobService = jobService;
     }
 
-    public BatchRunResponse process(BatchRunRequest batchRunRequest)
+    public BatchRunResponse process(BatchRunRequest batchRunRequest) throws Exception
     {
-        return BatchRunResponse.builder()
+        BatchRunResponse.Builder batchRunResponseBuilder = BatchRunResponse.builder()
                 .correlationId(batchRunRequest.getCorrelationId())
                 .instanceId(batchRunRequest.getInstanceId())
                 .name(batchRunRequest.getName())
+                .orgId(batchRunRequest.getOrgId());
+
+        Client client = clientService.findByInstanceId(batchRunRequest.getInstanceId()).orElse(null);
+
+        if (client == null)
+            return batchRunResponseBuilder
+                    .shouldRun(false)
+                    .build();
+
+        // TODO: Getting a Caught InvalidDataAccessApiUsageException trying to process BatchRunRequest. detached entity passed to persist: com.personal.batch.hatcher.client.model.Client
+        //  here. Need to figure out a solution.
+        Job requested = jobService.save(Job.builder()
+                .client(client)
+                .name(batchRunRequest.getName())
                 .orgId(batchRunRequest.getOrgId())
-                .shouldRun(shouldRun(batchRunRequest))
+                .status(JobStatus.REQUESTED)
+                .requestedAt(currentTimeMinus(0L))
+                .build());
+
+        boolean shouldRun = shouldRun(batchRunRequest);
+
+        if (shouldRun)
+            requested.setStatus(JobStatus.STARTED);
+        else
+            requested.setStatus(JobStatus.DENIED);
+
+        jobService.save(requested);
+
+        return batchRunResponseBuilder
+                .shouldRun(shouldRun)
                 .build();
     }
 
@@ -56,9 +93,9 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
 
         List<Job> jobs = jobService.findByNameAndRequestedAfter(batchRunRequest.getName(), currentTimeMinus(THREE_MINS_MILLIS));
 
-        if (jobWithOrdIdAlreadyRunning(batchRunRequest, jobs))
+        if (jobWithOrdIdAlreadyRequestedOrStarted(batchRunRequest, jobs))
         {
-            log.trace("Requested job {} is already running for orgId {}.", batchRunRequest.getName(), batchRunRequest.getOrgId());
+            log.trace("Requested job {} has already been requested or is already running for orgId {}.", batchRunRequest.getName(), batchRunRequest.getOrgId());
             return false;
         }
 
@@ -67,10 +104,12 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
         return true;
     }
 
-    protected boolean jobWithOrdIdAlreadyRunning(BatchRunRequest batchRunRequest, List<Job> jobs)
+    protected boolean jobWithOrdIdAlreadyRequestedOrStarted(BatchRunRequest batchRunRequest, List<Job> jobs)
     {
         return jobs.stream().anyMatch(job -> Objects.equals(job.getOrgId(), batchRunRequest.getOrgId())
-                && Objects.equals(job.getStatus(), JobStatus.STARTED));
+                &&
+                (Objects.equals(job.getStatus(), JobStatus.REQUESTED))
+                || Objects.equals(job.getStatus(), JobStatus.STARTED));
     }
 
     private Timestamp currentTimeMinus(long millis)

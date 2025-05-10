@@ -5,18 +5,16 @@ import com.personal.batch.hatcher.client.model.Client;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
-import java.util.UUID;
 
-@Entity(name = "JOB")
-@Table(name = "JOB")
+@Entity
 public class Job
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "client_id", insertable = false, updatable = false)
-    private UUID clientId;
+    private Long clientId;
 
     private String name;
     private Integer orgId;
@@ -43,12 +41,12 @@ public class Job
         this.id = id;
     }
 
-    public UUID getClientId()
+    public Long getClientId()
     {
         return clientId;
     }
 
-    public void setClientId(UUID clientId)
+    public void setClientId(Long clientId)
     {
         this.clientId = clientId;
     }
@@ -133,5 +131,57 @@ public class Job
     public void setClient(Client client)
     {
         this.client = client;
+    }
+
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
+    public static class Builder
+    {
+        private final Job job = new Job();
+
+        public Builder clientId(Long clientId)
+        {
+            job.setClientId(clientId);
+            return this;
+        }
+
+        public Builder client(Client client)
+        {
+            job.setClientId(client.getId());
+            job.setClient(client);
+            return this;
+        }
+
+        public Builder name(String name)
+        {
+            job.setName(name);
+            return this;
+        }
+
+        public Builder orgId(Integer orgId)
+        {
+            job.setOrgId(orgId);
+            return this;
+        }
+
+        public Builder status(JobStatus status)
+        {
+            job.setStatus(status);
+            return this;
+        }
+
+        public Builder requestedAt(Timestamp requestedAt)
+        {
+            job.setRequestedAt(requestedAt);
+            return this;
+        }
+
+        public Job build()
+        {
+            return job;
+        }
     }
 }

@@ -26,6 +26,20 @@ public class BatchRunController
     @SendTo("/topic/batch-run")
     public BatchRunResponse batchRun(BatchRunRequest request)
     {
-        return batchRunService.process(request);
+        try
+        {
+            return batchRunService.process(request);
+        }
+        catch (Exception e)
+        {
+            log.error("Caught {} trying to process BatchRunRequest. {}", e.getClass().getSimpleName(), e.getMessage(), e);
+            return BatchRunResponse.builder()
+                    .correlationId(request.getCorrelationId())
+                    .instanceId(request.getInstanceId())
+                    .name(request.getName())
+                    .orgId(request.getOrgId())
+                    .shouldRun(false)
+                    .build();
+        }
     }
 }
