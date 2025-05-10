@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(name = "CLIENT")
-@Table(name = "CLIENT")
+@Entity
 public class Client
 {
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private UUID instanceId;
 
     @Column(updatable = false)
     private Timestamp createdAt;
@@ -26,17 +28,32 @@ public class Client
     @PrePersist
     public void onCreate()
     {
-        this.createdAt = new Timestamp(System.currentTimeMillis());;
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+
+        this.createdAt = currentTimestamp;
+
+        if (lastHeartbeatTimestamp == null)
+            this.lastHeartbeatTimestamp = currentTimestamp;
     }
 
-    public UUID getId()
+    public Long getId()
     {
         return id;
     }
 
-    public void setId(UUID id)
+    public void setId(Long id)
     {
         this.id = id;
+    }
+
+    public UUID getInstanceId()
+    {
+        return instanceId;
+    }
+
+    public void setInstanceId(UUID instanceId)
+    {
+        this.instanceId = instanceId;
     }
 
     public Timestamp getCreatedAt()
@@ -70,5 +87,26 @@ public class Client
     public void setJobs(List<Job> jobs)
     {
         this.jobs = jobs;
+    }
+
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
+    public static class Builder
+    {
+        private final Client client = new Client();
+
+        public Builder instanceId(UUID instanceId)
+        {
+            client.setInstanceId(instanceId);
+            return this;
+        }
+
+        public Client build()
+        {
+            return client;
+        }
     }
 }

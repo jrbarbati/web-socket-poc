@@ -19,6 +19,7 @@ public class Job
     private UUID clientId;
 
     private String name;
+    private Integer orgId;
 
     @Enumerated(EnumType.STRING)
     private JobStatus status;
@@ -60,6 +61,16 @@ public class Job
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public Integer getOrgId()
+    {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId)
+    {
+        this.orgId = orgId;
     }
 
     public JobStatus getStatus()

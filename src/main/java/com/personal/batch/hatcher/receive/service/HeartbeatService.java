@@ -40,7 +40,7 @@ public class HeartbeatService extends UnidirectionalWebSocketService<Heartbeat>
 
     public boolean isOnline(UUID instanceId, long heartbeatTimeoutMillis)
     {
-        return clientService.findById(instanceId)
+        return clientService.findByInstanceId(instanceId)
                 .filter(value -> currentTime().getTime() - value.getLastHeartbeatTimestamp().getTime() <= heartbeatTimeoutMillis)
                 .isPresent();
     }

@@ -5,6 +5,7 @@ import com.personal.batch.hatcher.job.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,5 +23,15 @@ public class JobService
     public List<Job> findByClientId(UUID clientId)
     {
         return jobRepository.findByClientId(clientId);
+    }
+
+    public List<Job> findByNameAndRequestedAfter(String name, Timestamp requestedAfter)
+    {
+        return jobRepository.findByNameAndRequestedAtAfter(name, requestedAfter);
+    }
+
+    public Job save(Job job)
+    {
+        return jobRepository.save(job);
     }
 }

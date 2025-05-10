@@ -26,19 +26,23 @@ public class ClientService
         return clientRepository.findAll();
     }
 
-    public Optional<Client> findById(UUID clientId)
+    public Optional<Client> findByInstanceId(UUID instanceId)
     {
-        return clientRepository.findById(clientId);
+        return clientRepository.findByInstanceId(instanceId);
     }
 
-    public void updateLastHeartbeatTimestampToCurrentTime(UUID clientId)
+    public Client updateLastHeartbeatTimestampToCurrentTime(UUID clientId)
     {
-        updateLastHeartbeatTimestamp(clientId, currentTime());
+        return updateLastHeartbeatTimestamp(clientId, currentTime());
     }
 
-    public void updateLastHeartbeatTimestamp(UUID clientId, Timestamp lastHeartbeatTimestamp)
+    public Client updateLastHeartbeatTimestamp(UUID clientId, Timestamp lastHeartbeatTimestamp)
     {
-        clientRepository.updateLastHeartbeatTimestamp(clientId, lastHeartbeatTimestamp);
+        Client client = findByInstanceId(clientId).orElse(Client.builder().instanceId(clientId).build());
+
+        client.setLastHeartbeatTimestamp(lastHeartbeatTimestamp);
+
+        return save(client);
     }
 
     public Client save(Client client)

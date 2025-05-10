@@ -1,4 +1,4 @@
-package com.personal;
+package com.personal.batch.hatcher;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
