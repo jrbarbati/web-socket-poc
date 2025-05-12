@@ -57,10 +57,8 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
                     .shouldRun(false)
                     .build();
 
-        // TODO: Getting a Caught InvalidDataAccessApiUsageException trying to process BatchRunRequest. detached entity passed to persist: com.personal.batch.hatcher.client.model.Client
-        //  here. Need to figure out a solution.
         Job requested = jobService.save(Job.builder()
-                .client(client)
+                .clientId(client.getId())
                 .name(batchRunRequest.getName())
                 .orgId(batchRunRequest.getOrgId())
                 .status(JobStatus.REQUESTED)
@@ -70,7 +68,10 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
         boolean shouldRun = shouldRun(batchRunRequest);
 
         if (shouldRun)
+        {
             requested.setStatus(JobStatus.STARTED);
+            requested.setStartedAt(currentTimeMinus(0L));
+        }
         else
             requested.setStatus(JobStatus.DENIED);
 
@@ -91,25 +92,30 @@ public class BatchRunService extends BidirectionalWebSocketService<BatchRunReque
             return false;
         }
 
-        List<Job> jobs = jobService.findByNameAndRequestedAfter(batchRunRequest.getName(), currentTimeMinus(THREE_MINS_MILLIS));
+        List<Job> jobs = jobService.findByNameAndOrgIdAndStatusIn(
+                batchRunRequest.getName(),
+                batchRunRequest.getOrgId(),
+                List.of(JobStatus.REQUESTED, JobStatus.STARTED)
+        );
 
-        if (jobWithOrdIdAlreadyRequestedOrStarted(batchRunRequest, jobs))
+        if (jobAlreadyStartedByAnotherInstance(batchRunRequest, jobs))
         {
-            log.trace("Requested job {} has already been requested or is already running for orgId {}.", batchRunRequest.getName(), batchRunRequest.getOrgId());
+            log.trace("Requested job {} is already running for orgId {}.", batchRunRequest.getName(), batchRunRequest.getOrgId());
             return false;
         }
+
+        // TODO: Here we need to figure out our round-robin algorithm OR just do first-come first-served.
 
         log.trace("Allowing job {} to run for orgId {} to run on instance {}.", batchRunRequest.getName(), batchRunRequest.getOrgId(), batchRunRequest.getInstanceId());
 
         return true;
     }
 
-    protected boolean jobWithOrdIdAlreadyRequestedOrStarted(BatchRunRequest batchRunRequest, List<Job> jobs)
+    protected boolean jobAlreadyStartedByAnotherInstance(BatchRunRequest batchRunRequest, List<Job> jobs)
     {
-        return jobs.stream().anyMatch(job -> Objects.equals(job.getOrgId(), batchRunRequest.getOrgId())
-                &&
-                (Objects.equals(job.getStatus(), JobStatus.REQUESTED))
-                || Objects.equals(job.getStatus(), JobStatus.STARTED));
+        return jobs.stream()
+                .filter(job -> Objects.equals(job.getStatus(), JobStatus.STARTED))
+                .anyMatch(job -> !Objects.equals(job.getClient().getInstanceId(), batchRunRequest.getInstanceId()));
     }
 
     private Timestamp currentTimeMinus(long millis)

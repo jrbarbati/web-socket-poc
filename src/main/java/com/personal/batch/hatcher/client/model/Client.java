@@ -1,5 +1,6 @@
 package com.personal.batch.hatcher.client.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.personal.batch.hatcher.job.model.Job;
 import jakarta.persistence.*;
